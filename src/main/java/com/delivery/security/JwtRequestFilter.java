@@ -9,16 +9,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
-public class JwtRequestFilter extends OncePerRequestFilter {
+public class JwtRequestFilter extends GenericFilterBean {
 
 	private final JwtUserDetails jwtUserDetails;
 	private final JwtTokenUtil jwtTokenUtil;
@@ -31,15 +34,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		this.sessionService = sessionService;
 	}
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-									HttpServletResponse response,
-									FilterChain chain) throws ServletException, IOException {
 
-		final String requestTokenHeader = request.getHeader("Authorization");
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		final String requestTokenHeader = ((HttpServletRequest)request).getHeader("Authorization");
 		String email = null;
 		String jwtToken = null;
-
+		System.out.println(SecurityContextHolder.getContext().getAuthentication());
 		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
 			jwtToken = requestTokenHeader.substring(7);
 			try {
@@ -54,7 +55,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			logger.warn("JWT Token does not begin with Bearer String");
 		}
 
-		createAuthentication(email, jwtToken, request);
+		createAuthentication(email, jwtToken, (HttpServletRequest) request);
 		chain.doFilter(request, response);
 	}
 
