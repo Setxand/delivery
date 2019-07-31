@@ -2,7 +2,6 @@ package com.delivery.security;
 
 
 import com.delivery.service.LoginSessionService;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,14 +9,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
@@ -37,10 +34,12 @@ public class JwtRequestFilter extends GenericFilterBean {
 
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-		final String requestTokenHeader = ((HttpServletRequest)request).getHeader("Authorization");
+
+		final String requestTokenHeader = ((HttpServletRequest) request).getHeader("Authorization");
+
 		String email = null;
 		String jwtToken = null;
-		System.out.println(SecurityContextHolder.getContext().getAuthentication());
+
 		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
 			jwtToken = requestTokenHeader.substring(7);
 			try {
@@ -51,8 +50,6 @@ public class JwtRequestFilter extends GenericFilterBean {
 			} catch (IllegalArgumentException e) {
 				throw new AccessDeniedException("Unable to get JWT Token");
 			}
-		} else {
-			logger.warn("JWT Token does not begin with Bearer String");
 		}
 
 		createAuthentication(email, jwtToken, (HttpServletRequest) request);

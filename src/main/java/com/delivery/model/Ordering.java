@@ -14,14 +14,27 @@ import javax.persistence.Id;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Parcel {
+public class Ordering {
 
 	@Id
 	@GeneratedValue(generator = "uuid")
 	@GenericGenerator(name = "uuid", strategy = "uuid")
 	private String id;
-	private String name;
+
 	private String courierId;
-	private String content;
-	private String location;
+	private String userId;
+	private String deliveryId;
+	private String goods;
+
+	private String currentAddress;
+	private Double currentLat;
+	private Double currentLng;
+
+	private String startAddress;
+	private Double startLat;
+	private Double startLng;
+
+	private String finishAddress;
+	private Double finishLat;
+	private Double finishLng;
 }
