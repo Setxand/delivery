@@ -1,6 +1,7 @@
 package com.delivery.controller;
 
 import com.delivery.dto.CreateOrderingDTO;
+import com.delivery.dto.UpdateOrderingDTO;
 import com.delivery.dto.UserDTO;
 import com.delivery.repository.UserRepository;
 import com.delivery.security.Auth;
@@ -29,7 +30,7 @@ public class DeliveryController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/v1/orders")
 	public void createOrdering(@Valid @RequestBody CreateOrderingDTO dto) {
-		Auth.user();
+		Auth.courier();
 		orderingService.createOrdering(dto);
 	}
 
@@ -37,6 +38,14 @@ public class DeliveryController {
 	public List<CreateOrderingDTO> getUserOrderings(@PathVariable String userId) {
 		return orderingService
 				.listOrderingsByUser(userId).stream().map(DtoUtils::ordering).collect(Collectors.toList());
+	}
+
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@PutMapping("/v1/orders/{orderId}")
+	public void updateOrdering(@PathVariable String orderId, @RequestBody UpdateOrderingDTO dto) {
+		Auth.courier();
+		dto.orderingId = orderId;
+		orderingService.updateOrdering(dto);
 	}
 
 }

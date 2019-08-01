@@ -1,7 +1,9 @@
 package com.delivery.security;
 
 
+import com.delivery.model.User;
 import com.delivery.service.LoginSessionService;
+import com.delivery.service.UserService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,12 +25,14 @@ public class JwtRequestFilter extends GenericFilterBean {
 	private final JwtUserDetails jwtUserDetails;
 	private final JwtTokenUtil jwtTokenUtil;
 	private final LoginSessionService sessionService;
+	private final UserService userService;
 
 	public JwtRequestFilter(JwtUserDetails jwtUserDetails, JwtTokenUtil jwtTokenUtil,
-							LoginSessionService sessionService) {
+							LoginSessionService sessionService, UserService userService) {
 		this.jwtUserDetails = jwtUserDetails;
 		this.jwtTokenUtil = jwtTokenUtil;
 		this.sessionService = sessionService;
+		this.userService = userService;
 	}
 
 
@@ -37,13 +41,13 @@ public class JwtRequestFilter extends GenericFilterBean {
 
 		final String requestTokenHeader = ((HttpServletRequest) request).getHeader("Authorization");
 
-		String email = null;
+		String userId = null;
 		String jwtToken = null;
 
 		if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
 			jwtToken = requestTokenHeader.substring(7);
 			try {
-				email = jwtTokenUtil.getUsernameFromToken(jwtToken);
+				userId = jwtTokenUtil.getuserIdFromToken(jwtToken);
 
 				if (!sessionService.validateSession(jwtToken)) throw new AccessDeniedException("Token is disabled");
 
@@ -52,21 +56,22 @@ public class JwtRequestFilter extends GenericFilterBean {
 			}
 		}
 
-		createAuthentication(email, jwtToken, (HttpServletRequest) request);
+		createAuthentication(userId, jwtToken, (HttpServletRequest) request);
 		chain.doFilter(request, response);
 	}
 
-	private void createAuthentication(String email, String jwtToken, HttpServletRequest request) {
-		if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			UserDetails userDetails = this.jwtUserDetails.loadUserByUsername(email);
+	private void createAuthentication(String userId, String jwtToken, HttpServletRequest request) {
+		if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-			if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+			User user = userService.getUser(userId);
+			UserDetails userDetails = this.jwtUserDetails.createUserDetails(user);
+//			if (jwtTokenUtil.validateToken(jwtToken, user)) {
 				UsernamePasswordAuthenticationToken authToken =
-						new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+						new UsernamePasswordAuthenticationToken(userId, userDetails, userDetails.getAuthorities());
 
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(authToken);
-			}
+//			}
 		}
 	}
 }

@@ -24,6 +24,10 @@ public class UserService {
 		return userRepo.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Invalid User Email"));
 	}
 
+	public User getUser(String userId) {
+		return userRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("Invalid User ID"));
+	}
+
 	@Transactional
 	public User creteUser(UserDTO dto) {
 		User user = new User();

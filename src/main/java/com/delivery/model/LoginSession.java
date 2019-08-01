@@ -19,11 +19,11 @@ public class LoginSession {
 
 	@Id
 	private String id;
-	private String email;
+	private String userId;
 	private boolean disabled;
 	private LocalDateTime createdAt = LocalDateTime.now();
 
-	public LoginSession(String email) {
-		this.email = email;
+	public LoginSession(String userId) {
+		this.userId = userId;
 	}
 }

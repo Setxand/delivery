@@ -10,7 +10,6 @@ public class UserDTO {
 	@JsonProperty("user_email")
 	public String email;
 
-	@JsonIgnore
 	@JsonProperty("user_password")
 	public String password;
 

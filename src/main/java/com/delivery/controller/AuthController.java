@@ -8,10 +8,8 @@ import com.delivery.security.dto.JwtRequest;
 import com.delivery.security.dto.JwtResponse;
 import com.delivery.service.LoginSessionService;
 import com.delivery.service.UserService;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -29,8 +27,10 @@ public class AuthController {
 
 	@ResponseStatus(HttpStatus.CREATED)
 	@PostMapping("/signup")
-	public void signUp(@RequestBody UserDTO dto) {
-		userService.creteUser(dto);
+	public JwtResponse signUp(@RequestBody UserDTO dto) {
+		User user = userService.creteUser(dto);
+		String token = createSession(user);
+		return new JwtResponse(token);
 	}
 
 	@DeleteMapping("/logout")
@@ -39,15 +39,18 @@ public class AuthController {
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
-
+	public JwtResponse createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 		authenticate(authenticationRequest.email, authenticationRequest.password);
-
 		User user = userService.findByEmail(authenticationRequest.email);
 
-		final String token = jwtTokenUtil.generateToken(user);
-		sessionService.createSession(authenticationRequest.email, token);
-		return ResponseEntity.ok(new JwtResponse(token));
+		final String token = createSession(user);
+		return new JwtResponse(token);
+	}
+
+	private String createSession(User user) {
+		String token = jwtTokenUtil.generateToken(user);
+		sessionService.createSession(user.getEmail(), token);
+		return token;
 	}
 
 	private void authenticate(String username, String password) throws Exception {
