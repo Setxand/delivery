@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -51,10 +52,17 @@ public class UserService {
 
 	@PostConstruct
 	public void createAdmin() {
-		User user = new User();
-		user.setRole(User.Role.ADMIN);
-		user.setEmail("admin@delivery.com");
-		user.setPassword(encoder.encode("1111"));
-		userRepo.saveAndFlush(user);
+		Optional.of(getUsersByRole(User.Role.ADMIN)
+				.get(0)).orElseGet(() -> {
+					User u = new User();
+			u.setRole(User.Role.ADMIN);
+			u.setEmail("admin@delivery.com");
+			u.setPassword(encoder.encode("1111"));
+			return userRepo.saveAndFlush(u);
+		});
+	}
+
+	private List<User> getUsersByRole(User.Role role) {
+		return userRepo.findByRole(role);
 	}
 }
