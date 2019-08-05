@@ -64,6 +64,11 @@ public class OrderingService {
 		}
 	}
 
+	@Transactional
+	public void deleteOrdering(String orderId) {
+		orderingRepo.deleteById(orderId);
+	}
+
 	private Location createLocation(LocationDTO dto) {
 		Location location = new Location();
 		location.setAddress(dto.address);

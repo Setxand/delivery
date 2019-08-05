@@ -3,9 +3,9 @@ package com.delivery.controller;
 import com.delivery.dto.CreateOrderingDTO;
 import com.delivery.dto.UpdateOrderingDTO;
 import com.delivery.dto.UserDTO;
-import com.delivery.repository.UserRepository;
 import com.delivery.security.Auth;
 import com.delivery.service.OrderingService;
+import com.delivery.service.UserService;
 import com.delivery.util.DtoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 @RestController
 public class DeliveryController {
 
-	@Autowired UserRepository userRepository;
+	@Autowired UserService userService;
 	@Autowired OrderingService orderingService;
 
 	@GetMapping("/v1/users")
 	public List<UserDTO> getUsers() {
 		Auth.courier();
-		return userRepository.findAll().stream().map(DtoUtils::user).collect(Collectors.toList());
+		return userService.getAllUsers().stream().map(DtoUtils::user).collect(Collectors.toList());
 	}
 
 	@ResponseStatus(HttpStatus.CREATED)
@@ -48,4 +48,16 @@ public class DeliveryController {
 		orderingService.updateOrdering(dto);
 	}
 
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@DeleteMapping("/v1/orders/{orderId}")
+	public void deleteOrdering(@PathVariable String orderId) {
+		orderingService.deleteOrdering(orderId);
+	}
+
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@DeleteMapping("/v1/users/{userId}")
+	public void deleteUser(@PathVariable String userId) {
+		Auth.admin();
+		userService.deleteUser(userId);
+	}
 }

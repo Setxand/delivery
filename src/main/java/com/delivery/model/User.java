@@ -1,7 +1,6 @@
 package com.delivery.model;
 
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,7 +19,8 @@ public class User {
 
 	public enum Role {
 		USER,
-		COURIER
+		COURIER,
+		ADMIN
 	}
 
 	@Id

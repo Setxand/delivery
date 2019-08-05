@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -36,5 +37,14 @@ public class UserService {
 		user.setName(dto.name);
 		user.setRole(dto.role);
 		return userRepo.saveAndFlush(user);
+	}
+
+	public List<User> getAllUsers() {
+		return userRepo.findAll();
+	}
+
+	@Transactional
+	public void deleteUser(String userId) {
+		userRepo.deleteById(userId);
 	}
 }
