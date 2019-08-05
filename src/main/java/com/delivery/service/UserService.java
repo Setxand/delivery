@@ -6,6 +6,7 @@ import com.delivery.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 import java.util.List;
 
@@ -46,5 +47,14 @@ public class UserService {
 	@Transactional
 	public void deleteUser(String userId) {
 		userRepo.deleteById(userId);
+	}
+
+	@PostConstruct
+	public void createAdmin() {
+		User user = new User();
+		user.setRole(User.Role.ADMIN);
+		user.setEmail("admin@delivery.com");
+		user.setPassword(encoder.encode("1111"));
+		userRepo.saveAndFlush(user);
 	}
 }
