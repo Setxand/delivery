@@ -11,8 +11,8 @@ public class CreateOrderingDTO {
 	@JsonProperty("client_id")
 	public String userId;
 
-	@JsonProperty("courier_id")
-	public String courierId;
+//	@JsonProperty("courier_id")
+//	public String courierId;
 
 	@JsonProperty("current_location")
 	public LocationDTO current;

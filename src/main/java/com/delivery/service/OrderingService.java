@@ -27,7 +27,7 @@ public class OrderingService {
 	public void createOrdering(CreateOrderingDTO dto) {
 		Ordering ordering = new Ordering();
 
-		ordering.setCourierId(dto.courierId);
+		ordering.setCourierId(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 		ordering.setUserId(dto.userId);
 		ordering.setDeliveryId(dto.deliveryUuid);
 		ordering.setGoods(dto.goods);
