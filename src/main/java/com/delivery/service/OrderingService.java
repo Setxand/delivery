@@ -6,8 +6,7 @@ import com.delivery.dto.UpdateOrderingDTO;
 import com.delivery.model.Location;
 import com.delivery.model.Ordering;
 import com.delivery.repository.OrderingRepository;
-import com.delivery.repository.UserRepository;
-import com.delivery.security.Auth;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +17,11 @@ import java.util.List;
 public class OrderingService {
 
 	private final OrderingRepository orderingRepo;
-	private final UserRepository userRepo;
+	private final UserService userService;
 
-	public OrderingService(OrderingRepository orderingRepo, UserRepository userRepo) {
+	public OrderingService(OrderingRepository orderingRepo, UserService userService) {
 		this.orderingRepo = orderingRepo;
-		this.userRepo = userRepo;
+		this.userService = userService;
 	}
 
 	public void createOrdering(CreateOrderingDTO dto) {
@@ -40,13 +39,16 @@ public class OrderingService {
 		orderingRepo.save(ordering);
 	}
 
-	public List<Ordering> listOrderingsByUser(String userId) {
+	public List<Ordering> listOrderingsByUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-		if (!userId.equals(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString())){
-			Auth.courier();
+		String authorities = authentication.getAuthorities().toString();
+
+		if (authorities.contains("ROLE_COURIER")) {
+			return orderingRepo.findAllByCourierId(authentication.getPrincipal().toString());
 		}
-
-		return orderingRepo.findAllByUserId(userId);
+		else
+			return orderingRepo.findAllByUserId(authentication.getPrincipal().toString());
 	}
 
 	@Transactional

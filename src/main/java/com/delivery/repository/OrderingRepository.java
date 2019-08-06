@@ -10,4 +10,6 @@ public interface OrderingRepository extends JpaRepository<Ordering, String> {
 
 	List<Ordering> findAllByUserId(String userId);
 
+	List<Ordering> findAllByCourierId(String courierId);
+
 }

@@ -35,10 +35,16 @@ public class DeliveryController {
 		orderingService.createOrdering(dto);
 	}
 
-	@GetMapping("/v1/users/{userId}/orders")
-	public List<CreateOrderingDTO> getUserOrderings(@PathVariable String userId) {
+//	@GetMapping("/v1/users/{userId}/orders")
+//	public List<CreateOrderingDTO> getUserOrderings(@PathVariable String userId) {
+//		return orderingService
+//				.listOrderingsByUser(userId).stream().map(DtoUtils::ordering).collect(Collectors.toList());
+//	}
+
+	@GetMapping("/v1/orders")
+	public List<CreateOrderingDTO> getUserOrderings() {
 		return orderingService
-				.listOrderingsByUser(userId).stream().map(DtoUtils::ordering).collect(Collectors.toList());
+				.listOrderingsByUser().stream().map(DtoUtils::ordering).collect(Collectors.toList());
 	}
 
 	@ResponseStatus(HttpStatus.NO_CONTENT)
