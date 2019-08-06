@@ -38,6 +38,7 @@ public class AuthController {
 		sessionService.logout(token.substring(7));
 	}
 
+	@ResponseStatus(HttpStatus.ACCEPTED)
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public JwtResponse createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 		authenticate(authenticationRequest.email, authenticationRequest.password);

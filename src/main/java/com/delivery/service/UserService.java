@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.dto.UserDTO;
 import com.delivery.model.User;
 import com.delivery.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,16 +34,18 @@ public class UserService {
 
 	@Transactional
 	public User creteUser(UserDTO dto) {
-		User user = new User();
-		user.setEmail(dto.email);
-		user.setPassword(encoder.encode(dto.password));
-		user.setName(dto.name);
-		user.setRole(dto.role);
-		return userRepo.saveAndFlush(user);
-	}
+		Optional<User> user = userRepo.findByEmail(dto.email);
 
-	public List<User> getAllUsers() {
-		return userRepo.findAll();
+		if (user.isPresent()) throw new
+				AccessDeniedException(String.format("User with address %s already exists", dto.email));
+
+		User u = new User();
+
+		u.setEmail(dto.email);
+		u.setPassword(encoder.encode(dto.password));
+		u.setName(dto.name);
+		u.setRole(dto.role);
+		return userRepo.saveAndFlush(u);
 	}
 
 	@Transactional
@@ -52,17 +55,18 @@ public class UserService {
 
 	@PostConstruct
 	public void createAdmin() {
-		Optional.of(getUsersByRole(User.Role.ADMIN)
-				.get(0)).orElseGet(() -> {
-					User u = new User();
+		List<User> usersByRole = getUsersByRole(User.Role.ADMIN);
+
+		if (usersByRole.isEmpty()) {
+			User u = new User();
 			u.setRole(User.Role.ADMIN);
 			u.setEmail("admin@delivery.com");
 			u.setPassword(encoder.encode("1111"));
-			return userRepo.saveAndFlush(u);
-		});
+			userRepo.saveAndFlush(u);
+		}
 	}
 
-	private List<User> getUsersByRole(User.Role role) {
+	public List<User> getUsersByRole(User.Role role) {
 		return userRepo.findByRole(role);
 	}
 }

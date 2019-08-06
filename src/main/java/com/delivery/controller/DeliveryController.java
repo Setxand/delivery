@@ -3,6 +3,7 @@ package com.delivery.controller;
 import com.delivery.dto.CreateOrderingDTO;
 import com.delivery.dto.UpdateOrderingDTO;
 import com.delivery.dto.UserDTO;
+import com.delivery.model.User;
 import com.delivery.security.Auth;
 import com.delivery.service.OrderingService;
 import com.delivery.service.UserService;
@@ -24,7 +25,7 @@ public class DeliveryController {
 	@GetMapping("/v1/users")
 	public List<UserDTO> getUsers() {
 		Auth.courier();
-		return userService.getAllUsers().stream().map(DtoUtils::user).collect(Collectors.toList());
+		return userService.getUsersByRole(User.Role.USER).stream().map(DtoUtils::user).collect(Collectors.toList());
 	}
 
 	@ResponseStatus(HttpStatus.CREATED)
